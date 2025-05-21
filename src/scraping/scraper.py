@@ -49,11 +49,15 @@ def scrape_recipe(url):
     # Extraction des instructions
     instructions = [li.get_text(strip=True) for li in soup.select("ul.wprm-recipe-instructions li")]
 
+    course_tag = soup.find("span", class_="wprm-recipe-course")
+    course = course_tag.get_text(strip=True) if course_tag else "Uncategorized"
+
     return {
         "title": title,
         "url": url,
         "ingredients": ingredients,
-        "instructions": instructions
+        "instructions": instructions,
+        "course": course
     }
 
 def main():
