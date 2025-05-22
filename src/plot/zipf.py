@@ -5,6 +5,10 @@ import seaborn as sns
 import nltk
 from nltk.corpus import stopwords
 
+""" Ce script calcule la loi de Zipf (les mots les plus fréquents) par catégorie de recette (entrée, plat ou dessert).
+Les résultats sont sauvegardés dans le dossier figures sous forme de fichiers png (un fichier par classe, pour pouvoir visualiser chaque mot avec sa fréquence).
+Le script ne prend pas en compte les mots grammaticaux ("and", "or", "the", etc.), peu représentatifs de chaque classe et donc peu pertinents pour la loi de Zipf. """
+
 df = pd.read_csv("../../data/clean/minimalist_baker_recipes_clean.csv")
 
 nltk.download("stopwords")

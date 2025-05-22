@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import re
 
-"""Ce script de nettoyage fait en sorte de ne garder que des données qui seront utiles à l'entraînement et à l'évaluation des modèles"""
+""" Ce script de nettoyage fait en sorte de ne garder que des données qui seront utiles à l'entraînement et à l'évaluation des modèles. Le texte est d'abord normalisé, puis le script crée un dataframe pandas qui contient 4 colonnes: le titre de la recette, les ingrédients, les instructions et les labels. Les données sont ensuite sauvegardées dans un fichier csv. """
 
 RAW_PATH = "../../data/raw/minimalist_baker_recipes.csv"
 CLEAN_PATH = "../../data/clean/minimalist_baker_recipes_clean.csv"

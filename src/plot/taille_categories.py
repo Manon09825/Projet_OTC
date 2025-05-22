@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-"""Taille des catégories en nombre de recettes"""
+""" Ce script calcule la taille des catégories en nombre de recettes. Il sauvegarde les résultats dans le dossier figures sous forme d'un fichier png. """
 
 df = pd.read_csv("../../data/clean/minimalist_baker_recipes_clean.csv")
 

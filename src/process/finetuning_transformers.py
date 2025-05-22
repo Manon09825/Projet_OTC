@@ -1,33 +1,31 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from transformers import DistilBertTokenizerFast
-from transformers import DistilBertForSequenceClassification, Trainer, TrainingArguments
+from sklearn.model_selection import train_test_split
+from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification, Trainer, TrainingArguments
 from datasets import Dataset
 
+""" Ce script sert à finetuner un transformer de Huggingface préentraîné. Il n'utilise que le dataset d'entraînement. Il convertit le dataframe pandas (dans l'ensemble d'entraînement) en dataset lisible par HuggingFace. Il charge ensuite le modèle (DistilBert), puis l'entraîne. """
 
-df = pd.read_csv("../../data/clean/minimalist_baker_recipes_balanced.csv")
-
-df["text"] = df["ingredients_clean"] + " " + df["instructions_clean"]
-
-le = LabelEncoder()
-df["label_id"] = le.fit_transform(df["label"])
+df = pd.read_csv("../../data/clean/train.csv")
 
 
 tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
-
 def tokenize_data(data):
     return tokenizer(data["text"], truncation=True, padding="max_length")
 
-hf_dataset = Dataset.from_pandas(df[["text", "label_id"]].rename(columns={"label_id": "labels"}))
-hf_dataset = hf_dataset.train_test_split(test_size=0.2)
-tokenized_dataset = hf_dataset.map(tokenize_data, batched=True)
+train_dataset = Dataset.from_pandas(df[["text", "label"]])
 
+label_list = df["label"].unique().tolist()
+label2id = {label: idx for idx, label in enumerate(label_list)}
 
-model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=3)
+train_dataset = train_dataset.map(lambda x: {"label": label2id[x["label"]]})
 
+train_dataset = train_dataset.map(tokenize_data, batched=True)
+
+model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=len(label2id))
+
+# Définition des paramètres d'entraînement du modèle, puis phase d'entraînement
 training_args = TrainingArguments(
     output_dir="./results",
-    evaluation_strategy="epoch",
     learning_rate=2e-5,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
@@ -38,14 +36,12 @@ training_args = TrainingArguments(
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=tokenized_dataset["train"],
-    eval_dataset=tokenized_dataset["test"],
+    train_dataset=train_dataset,
     tokenizer=tokenizer,
 )
 
-
 trainer.train()
 
+# Sauvegarde du modèle finetuné
 model.save_pretrained("../../bin/my_distilbert_model")
 tokenizer.save_pretrained("../../bin/my_distilbert_model")
-
