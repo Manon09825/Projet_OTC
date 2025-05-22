@@ -18,9 +18,8 @@ tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
 def tokenize_data(data):
     return tokenizer(data["text"], truncation=True, padding="max_length")
 
-hf_dataset = Dataset.from_pandas(df[["text", "label_id"]])
+hf_dataset = Dataset.from_pandas(df[["text", "label_id"]].rename(columns={"label_id": "labels"}))
 hf_dataset = hf_dataset.train_test_split(test_size=0.2)
-
 tokenized_dataset = hf_dataset.map(tokenize_data, batched=True)
 
 
